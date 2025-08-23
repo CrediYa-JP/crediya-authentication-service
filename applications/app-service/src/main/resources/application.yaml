@@ -6,9 +6,12 @@ spring:
     name: AuthenticationService
   devtools:
     add-properties: false
-  h2:
-    console:
-      enabled: true
-      path: /h2
-  profiles:
-    include:
+adapters:
+  r2dbc:
+    host: "localhost"
+    port: 3300
+    database: "crediya_auth"
+    schema: "crediya_auth"
+    username: "root"
+    password: "password"
+
