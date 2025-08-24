@@ -6,6 +6,12 @@ spring:
     name: AuthenticationService
   devtools:
     add-properties: false
+  flyway:
+    enabled: true
+    url: jdbc:mysql://localhost:3300/crediya_auth
+    user: root
+    password: password
+    locations: classpath:db/migration
 adapters:
   r2dbc:
     host: "localhost"

@@ -1,8 +1,9 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
-	implementation 'org.reactivecommons.utils:object-mapper:0.1.0'
+    implementation 'org.reactivecommons.utils:object-mapper:0.1.0'
     implementation project(':r2dbc-mysql')
+    implementation project(':mysql-migrations')
     implementation project(':model')
     implementation project(':usecase')
     implementation 'org.springframework.boot:spring-boot-starter'
