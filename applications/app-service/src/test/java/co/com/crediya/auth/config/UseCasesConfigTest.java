@@ -1,6 +1,8 @@
 package co.com.crediya.auth.config;
 
+import co.com.crediya.auth.model.user.gateways.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +36,13 @@ public class UseCasesConfigTest {
         public MyUseCase myUseCase() {
             return new MyUseCase();
         }
+
+        @Bean
+        public UserRepository taskRepository() {
+            return Mockito.mock(UserRepository.class);
+        }
+
+
     }
 
     static class MyUseCase {
