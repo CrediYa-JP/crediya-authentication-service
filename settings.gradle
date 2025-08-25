@@ -24,3 +24,5 @@ include ':r2dbc-mysql'
 project(':r2dbc-mysql').projectDir = file('./infrastructure/driven-adapters/r2dbc-mysql')
 include ':mysql-migrations'
 project(':mysql-migrations').projectDir = file('./infrastructure/driven-adapters/mysql-migrations')
+include ':reactive-web'
+project(':reactive-web').projectDir = file('./infrastructure/entry-points/reactive-web')
