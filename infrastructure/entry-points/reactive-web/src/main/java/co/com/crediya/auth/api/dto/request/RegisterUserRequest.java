@@ -1,4 +1,4 @@
-package co.com.crediya.auth.api.dto;
+package co.com.crediya.auth.api.dto.request;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
