@@ -7,7 +7,6 @@ import co.com.crediya.auth.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
 
 @RequiredArgsConstructor
 public class UserUseCase {
