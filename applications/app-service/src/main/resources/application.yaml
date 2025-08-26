@@ -16,6 +16,11 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+  webjars:
+    prefix: /webjars
+  enable-native-support: true
+  router-function:
+    enabled: true
 
 adapters:
   r2dbc:

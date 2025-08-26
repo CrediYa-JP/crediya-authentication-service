@@ -1,12 +1,20 @@
 package co.com.crediya.auth.api;
 import co.com.crediya.auth.api.dto.request.RegisterUserRequest;
+import co.com.crediya.auth.api.dto.response.UserResponse;
+import co.com.crediya.auth.api.exception.ApiErrorResponse;
 import co.com.crediya.auth.api.mapper.UserMapper;
 import co.com.crediya.auth.api.util.ValidationUtil;
 import co.com.crediya.auth.usecase.user.UserUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -30,7 +38,4 @@ public class Handler {
                         .bodyValue(userResponse));
 
     }
-
-
-
 }
