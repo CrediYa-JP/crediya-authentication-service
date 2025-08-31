@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.reactive.resource.NoResourceFoundException;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -57,6 +58,10 @@ public class GlobalExceptionHandler {
                 .build();
 
         return Mono.just(ResponseEntity.badRequest().body(response));
+    }
+    @ExceptionHandler(NoResourceFoundException.class)
+    public Mono<ResponseEntity<ApiErrorResponse>> handleNotFound(NoResourceFoundException ex) {
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @ExceptionHandler(Exception.class)

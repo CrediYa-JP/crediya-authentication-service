@@ -50,6 +50,9 @@ public class RouterRest {
         return route(POST(API_V1_USERS)
                         .and(accept(MediaType.APPLICATION_JSON))
                         .and(contentType(MediaType.APPLICATION_JSON)),
-                handler::registerUser);
+                handler::registerUser)
+                .andRoute(GET(API_V1_USERS + "/retrieve")
+                                .and(queryParam("identityDocument", identityDocument -> !identityDocument.isEmpty())),
+                        handler::retrieveUserByIdentityDocument);
     }
 }

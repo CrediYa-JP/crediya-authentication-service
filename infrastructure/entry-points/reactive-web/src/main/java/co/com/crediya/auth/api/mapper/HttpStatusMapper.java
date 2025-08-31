@@ -14,6 +14,7 @@ public class HttpStatusMapper {
         return switch(errorCode.getCode()) {
             case BusinessErrorCodes.USER_ALREADY_EXISTS -> HttpStatus.CONFLICT;
             case BusinessErrorCodes.INVALID_EMAIL_FORMAT-> HttpStatus.BAD_REQUEST;
+            case BusinessErrorCodes.USER_NOT_FOUND -> HttpStatus.NOT_FOUND;
             default -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }

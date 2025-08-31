@@ -27,6 +27,7 @@ public class Handler {
     private final UserUseCase userUseCase;
 
     public Mono<ServerResponse> registerUser(ServerRequest serverRequest) {
+
         return serverRequest.bodyToMono(RegisterUserRequest.class)
                 .flatMap(ValidationUtil::validate)
                 .doOnNext(req -> log.info("AUTH_USER_REGISTER_REQUEST email={}", req.getEmail()))
@@ -37,5 +38,18 @@ public class Handler {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(userResponse));
 
+    }
+
+    public Mono<ServerResponse>retrieveUserByIdentityDocument(ServerRequest serverRequest){
+
+        String identityDocument = serverRequest.queryParam("identityDocument").
+                orElseThrow(() -> new IllegalArgumentException("identityDocument is required"));
+        log.info("AUTH_USER_RETRIEVE_BY_IdentityDocument identityDocument={}", identityDocument);
+
+        return userUseCase.retrieveUserByIdentityDocument(identityDocument)
+                .map(UserMapper::toUserResponse)
+                .flatMap(userResponse -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(userResponse));
     }
 }
