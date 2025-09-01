@@ -1,14 +1,48 @@
-##Spring Configuration
 server:
   port: 8080
 spring:
   application:
-    name: AuthenticationService
+    name: "AuthenticationService"
   devtools:
     add-properties: false
-  h2:
-    console:
-      enabled: true
-      path: /h2
-  profiles:
-    include:
+  flyway:
+    enabled: true
+    url: "jdbc:mysql://localhost:3300/crediya_auth"
+    user: "root"
+    password: "password"
+    locations: "classpath:db/migration"
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+  webjars:
+    prefix: /webjars
+  enable-native-support: true
+  router-function:
+    enabled: true
+
+adapters:
+  r2dbc:
+    host: "localhost"
+    port: 3300
+    database: "crediya_auth"
+    schema: "crediya_auth"
+    username: "root"
+    password: "password"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8080"
+
+logging:
+  level:
+    co.com.crediya: DEBUG
+    org.springframework.web: DEBUG
