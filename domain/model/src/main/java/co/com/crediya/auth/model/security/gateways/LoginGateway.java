@@ -1,4 +1,4 @@
-package co.com.crediya.auth.model.security;
+package co.com.crediya.auth.model.security.gateways;
 
 import reactor.core.publisher.Mono;
 
