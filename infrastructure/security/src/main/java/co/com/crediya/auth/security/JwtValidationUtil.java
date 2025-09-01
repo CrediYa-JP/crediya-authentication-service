@@ -1,4 +1,4 @@
-package co.com.crediya.auth.config.security;
+package co.com.crediya.auth.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

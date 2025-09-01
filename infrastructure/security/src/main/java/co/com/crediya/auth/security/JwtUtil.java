@@ -1,6 +1,7 @@
-package co.com.crediya.auth.config.security;
+package co.com.crediya.auth.security;
 
 import co.com.crediya.auth.model.user.User;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
