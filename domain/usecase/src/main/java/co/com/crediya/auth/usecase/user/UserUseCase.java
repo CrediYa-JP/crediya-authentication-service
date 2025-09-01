@@ -16,8 +16,9 @@ public class UserUseCase {
 
     public Mono<User> registerUser(User user) {
         return validateEmailUnique(user.getEmail())
-                .then(validateIdentityDocumentUnique(user.getIdentityDocument()))
-                .then(userRepository.save(user));
+                .then(Mono.defer(()->
+                        validateIdentityDocumentUnique(user.getIdentityDocument()) ))
+                .then(Mono.defer(() -> userRepository.save(user)));
     }
 
 
