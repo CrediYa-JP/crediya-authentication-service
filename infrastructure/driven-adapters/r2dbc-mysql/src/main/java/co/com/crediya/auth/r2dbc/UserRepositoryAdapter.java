@@ -39,6 +39,12 @@ public class UserRepositoryAdapter extends ReactiveAdapterOperations<
                 .map(this::toEntity);
     }
 
+    @Override
+    public Mono<User> findByEmail(String email) {
+        return repository.findByEmail(email)
+                .map(this::toEntity);
+    }
+
     @Transactional
     @Override
     public Mono<Boolean> existsByEmail(String email) {
