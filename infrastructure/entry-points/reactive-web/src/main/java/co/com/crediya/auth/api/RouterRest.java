@@ -1,5 +1,7 @@
 package co.com.crediya.auth.api;
 
+import co.com.crediya.auth.api.dto.request.LoginRequest;
+import co.com.crediya.auth.api.dto.response.LoginResponse;
 import co.com.crediya.auth.api.exception.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -26,6 +28,8 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class RouterRest {
 
     private static final String API_V1_USERS = "/api/v1/users";
+    private static final String API_V1_LOGIN = "/api/v1/login";
+
 
     @Bean
     @RouterOperations({
@@ -77,7 +81,30 @@ public class RouterRest {
                                             content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/login",
+                    method = RequestMethod.POST,
+                    operation = @Operation(
+                            operationId = "authenticateUser",
+                            summary = "User authentication",
+                            description = "Authenticates user credentials and returns JWT token",
+                            tags = {"Authentication"},
+                            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                    required = true,
+                                    content = @Content(schema = @Schema(implementation = LoginRequest.class))
+                            ),
+                            responses = {
+                                    @ApiResponse(responseCode = "200", description = "Authentication successful",
+                                            content = @Content(schema = @Schema(implementation = LoginResponse.class))),
+                                    @ApiResponse(responseCode = "400", description = "Validation error",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+                                    @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+                            }
+                    )
             )
+
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST(API_V1_USERS)
@@ -86,6 +113,10 @@ public class RouterRest {
                 handler::registerUser)
                 .andRoute(GET(API_V1_USERS + "/retrieve")
                                 .and(queryParam("identityDocument", identityDocument -> !identityDocument.isEmpty())),
-                        handler::retrieveUserByIdentityDocument);
+                        handler::retrieveUserByIdentityDocument)
+                .andRoute(POST(API_V1_LOGIN)
+                                .and(accept(MediaType.APPLICATION_JSON))
+                                .and(contentType(MediaType.APPLICATION_JSON)),
+                        handler::authenticateUser);
     }
 }
