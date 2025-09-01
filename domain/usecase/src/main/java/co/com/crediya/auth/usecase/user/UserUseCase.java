@@ -3,6 +3,7 @@ package co.com.crediya.auth.usecase.user;
 
 import co.com.crediya.auth.model.exception.user.UserAlreadyExistsException;
 import co.com.crediya.auth.model.exception.user.UserNotFoundException;
+import co.com.crediya.auth.model.security.gateways.PasswordService;
 import co.com.crediya.auth.model.user.User;
 import co.com.crediya.auth.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +14,16 @@ import reactor.core.publisher.Mono;
 public class UserUseCase {
 
     private final UserRepository userRepository;
+    private final PasswordService passwordService;
 
     public Mono<User> registerUser(User user) {
-        return validateEmailUnique(user.getEmail())
-                .then(Mono.defer(()->
-                        validateIdentityDocumentUnique(user.getIdentityDocument()) ))
-                .then(Mono.defer(() -> userRepository.save(user)));
+        User userWithHashedPassword = user.toBuilder()
+                .password(passwordService.encode(user.getPassword()))
+                .build();
+
+        return validateEmailUnique(userWithHashedPassword.getEmail())
+                .then(Mono.defer(() -> validateIdentityDocumentUnique(userWithHashedPassword.getIdentityDocument())))
+                .then(Mono.defer(() -> userRepository.save(userWithHashedPassword)));
     }
 
 
