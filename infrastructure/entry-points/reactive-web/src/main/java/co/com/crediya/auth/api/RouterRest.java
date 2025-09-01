@@ -1,6 +1,8 @@
 package co.com.crediya.auth.api;
 
 import co.com.crediya.auth.api.exception.ApiErrorResponse;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 
 import co.com.crediya.auth.api.dto.request.RegisterUserRequest;
@@ -9,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springdoc.core.annotations.RouterOperation;
+import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -25,27 +28,57 @@ public class RouterRest {
     private static final String API_V1_USERS = "/api/v1/users";
 
     @Bean
-    @RouterOperation(
-            path = "/api/v1/users",
-            method = RequestMethod.POST,
-            operation = @Operation(
-                    operationId = "registerUser",
-                    summary = "Register new user",
-                    description = "Creates a new user in the system",
-                    tags = {"User Management"},
-                    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                            required = true,
-                            content = @Content(schema = @Schema(implementation = RegisterUserRequest.class))
-                    ),
-                    responses = {
-                            @ApiResponse(responseCode = "200", description = "User created",
-                                    content = @Content(schema = @Schema(implementation = UserResponse.class))),
-                            @ApiResponse(responseCode = "400", description = "Validation error",
-                                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
-                            @ApiResponse(responseCode = "409", description = "User already exists")
-                    }
+    @RouterOperations({
+            @RouterOperation(
+                    path = "/api/v1/users",
+                    method = RequestMethod.POST,
+                    operation = @Operation(
+                            operationId = "registerUser",
+                            summary = "Register new user",
+                            description = "Creates a new user in the system",
+                            tags = {"User Management"},
+                            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                    required = true,
+                                    content = @Content(schema = @Schema(implementation = RegisterUserRequest.class))
+                            ),
+                            responses = {
+                                    @ApiResponse(responseCode = "200", description = "User created successfully",
+                                            content = @Content(schema = @Schema(implementation = UserResponse.class))),
+                                    @ApiResponse(responseCode = "400", description = "Validation error",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+                                    @ApiResponse(responseCode = "409", description = "User already exists",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+                            }
+                    )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/users/retrieve",
+                    method = RequestMethod.GET,
+                    operation = @Operation(
+                            operationId = "retrieveUserByIdentityDocument",
+                            summary = "Retrieve user by identity document",
+                            description = "Finds and returns user information by identity document number",
+                            tags = {"User Management"},
+                            parameters = {
+                                    @Parameter(
+                                            name = "identityDocument",
+                                            description = "User's identity document number",
+                                            required = true,
+                                            in = ParameterIn.QUERY,
+                                            schema = @Schema(type = "string", example = "12345678")
+                                    )
+                            },
+                            responses = {
+                                    @ApiResponse(responseCode = "200", description = "User found successfully",
+                                            content = @Content(schema = @Schema(implementation = UserResponse.class))),
+                                    @ApiResponse(responseCode = "404", description = "User not found",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+                                    @ApiResponse(responseCode = "400", description = "Invalid identity document parameter",
+                                            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+                            }
+                    )
             )
-    )
+    })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST(API_V1_USERS)
                         .and(accept(MediaType.APPLICATION_JSON))
