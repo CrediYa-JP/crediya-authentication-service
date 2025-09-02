@@ -55,7 +55,7 @@ public class AuthorizationFilter implements WebFilter {
 
     private Mono<Void> validateTokenAndRole(String token) {
         return Mono.fromCallable(() -> jwtValidationUtil.getRoleId(token))
-                .filter(roleId -> roleId.equals(RoleConstants.ADMIN_ROLE_ID) || roleId.equals(RoleConstants.ADVISOR_ROLE_ID)) //
+                .filter(roleId -> roleId.equals(RoleConstants.ADMIN_ROLE_ID) || roleId.equals(RoleConstants.ADVISOR_ROLE_ID))
                 .switchIfEmpty(Mono.error(new RuntimeException("Insufficient role")))
                 .then();
     }
