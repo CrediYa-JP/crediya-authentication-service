@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.reactive.resource.NoResourceFoundException;
+import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,8 @@ public class GlobalExceptionHandler {
 
     private static final String VALIDATION_ERROR_CODE = "VAL001";
     private static final String INTERNAL_ERROR_CODE = "SYS001";
+    private static final String MALFORMED_JSON_ERROR_CODE = "REQ001";
+
 
     @ExceptionHandler(BusinessException.class)
     public Mono<ResponseEntity<ApiErrorResponse>> handleBusinessException(BusinessException ex) {
@@ -59,10 +62,27 @@ public class GlobalExceptionHandler {
 
         return Mono.just(ResponseEntity.badRequest().body(response));
     }
+
+    @ExceptionHandler(ServerWebInputException.class)
+    public Mono<ResponseEntity<ApiErrorResponse>> handleServerWebInputException(ServerWebInputException ex) {
+        log.warn("Malformed request body: {}", ex.getMessage());
+
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .success(false)
+                .code(MALFORMED_JSON_ERROR_CODE)
+                .message("Invalid request format")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return Mono.just(ResponseEntity.badRequest().body(response));
+    }
+
+
     @ExceptionHandler(NoResourceFoundException.class)
     public Mono<ResponseEntity<ApiErrorResponse>> handleNotFound(NoResourceFoundException ex) {
         return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
 
     @ExceptionHandler(Exception.class)
     public Mono<ResponseEntity<ApiErrorResponse>> handleGenericException(Exception ex) {
