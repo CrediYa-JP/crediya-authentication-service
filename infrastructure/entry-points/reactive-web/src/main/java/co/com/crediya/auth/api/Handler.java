@@ -1,23 +1,23 @@
 package co.com.crediya.auth.api;
+import co.com.crediya.auth.api.dto.request.LoginRequest;
 import co.com.crediya.auth.api.dto.request.RegisterUserRequest;
-import co.com.crediya.auth.api.dto.response.UserResponse;
-import co.com.crediya.auth.api.exception.ApiErrorResponse;
+import co.com.crediya.auth.api.dto.response.LoginResponse;
 import co.com.crediya.auth.api.mapper.UserMapper;
 import co.com.crediya.auth.api.util.ValidationUtil;
+import co.com.crediya.auth.model.user.User;
+import co.com.crediya.auth.usecase.login.LoginUseCase;
 import co.com.crediya.auth.usecase.user.UserUseCase;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +25,8 @@ import reactor.core.publisher.Mono;
 public class Handler {
 
     private final UserUseCase userUseCase;
+    private final LoginUseCase loginUseCase;
+
 
     public Mono<ServerResponse> registerUser(ServerRequest serverRequest) {
 
@@ -40,6 +42,23 @@ public class Handler {
 
     }
 
+    public Mono<ServerResponse> retrieveUsersByIdentityDocuments(ServerRequest serverRequest) {
+        return serverRequest.bodyToMono(String[].class)
+                .map(Arrays::asList)
+                .doOnNext(identityDocuments -> log.info("AUTH_BATCH_REQUEST identityDocuments={}", identityDocuments))
+                .flatMap(identityDocuments -> {
+                    // ✅ Debug explícito del tipo retornado
+                    Mono<List<User>> usersResult = userUseCase.retrieveUsersByIdentityDocuments(identityDocuments);
+                    return usersResult;
+                })
+                .flatMapMany(Flux::fromIterable)  // List<User> → Flux<User>
+                .map(UserMapper::toUserResponse)  // User → UserResponse
+                .collectList()                    // Flux<UserResponse> → Mono<List<UserResponse>>
+                .flatMap(users -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(users));
+    }
+
     public Mono<ServerResponse>retrieveUserByIdentityDocument(ServerRequest serverRequest){
 
         String identityDocument = serverRequest.queryParam("identityDocument").
@@ -51,5 +70,20 @@ public class Handler {
                 .flatMap(userResponse -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(userResponse));
+    }
+
+    public Mono<ServerResponse> authenticateUser(ServerRequest serverRequest) {
+        return serverRequest.bodyToMono(LoginRequest.class)
+                .flatMap(ValidationUtil::validate)
+                .doOnNext(req -> log.info("AUTH_LOGIN_REQUEST email={}", req.getEmail()))
+                .flatMap(request -> loginUseCase.authenticateUser(request.getEmail(), request.getPassword()))
+                .map(token -> LoginResponse.builder()
+                        .token(token)
+                        .tokenType("Bearer")
+                        .expiresIn(86400000L)
+                        .build())
+                .flatMap(loginResponse -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(loginResponse));
     }
 }

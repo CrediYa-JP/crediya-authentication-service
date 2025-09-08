@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 
 @Repository
 public class UserRepositoryAdapter extends ReactiveAdapterOperations<
@@ -39,9 +41,22 @@ public class UserRepositoryAdapter extends ReactiveAdapterOperations<
                 .map(this::toEntity);
     }
 
+    @Override
+    public Mono<User> findByEmail(String email) {
+        return repository.findByEmail(email)
+                .map(this::toEntity);
+    }
+
     @Transactional
     @Override
     public Mono<Boolean> existsByEmail(String email) {
         return repository.existsByEmail(email);
+    }
+
+    @Override
+    public Mono<List<User>> findByIdentityDocuments(List<String> identityDocuments) {
+        return repository.findAllByIdentityDocumentIn(identityDocuments)
+                .map(this::toEntity)
+                .collectList();
     }
 }

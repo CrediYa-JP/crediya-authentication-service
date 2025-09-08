@@ -1,26 +1,32 @@
 package co.com.crediya.auth.usecase.user;
 
-
 import co.com.crediya.auth.model.exception.user.UserAlreadyExistsException;
 import co.com.crediya.auth.model.exception.user.UserNotFoundException;
+import co.com.crediya.auth.model.security.gateways.PasswordService;
 import co.com.crediya.auth.model.user.User;
 import co.com.crediya.auth.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 
 @RequiredArgsConstructor
 public class UserUseCase {
 
     private final UserRepository userRepository;
+    private final PasswordService passwordService;
 
     public Mono<User> registerUser(User user) {
-        return validateEmailUnique(user.getEmail())
-                .then(Mono.defer(()->
-                        validateIdentityDocumentUnique(user.getIdentityDocument()) ))
-                .then(Mono.defer(() -> userRepository.save(user)));
+        return Mono.fromCallable(() -> passwordService.encode(user.getPassword()))
+                .map(hashedPassword -> user.toBuilder()
+                        .password(hashedPassword)
+                        .build())
+                .flatMap(userWithHashedPassword ->
+                        validateEmailUnique(userWithHashedPassword.getEmail())
+                                .then(Mono.defer(() -> validateIdentityDocumentUnique(userWithHashedPassword.getIdentityDocument())))
+                                .then(Mono.defer(() -> userRepository.save(userWithHashedPassword)))
+                );
     }
-
 
     private Mono<Void> validateEmailUnique(String email) {
         return userRepository.existsByEmail(email)
@@ -28,6 +34,7 @@ public class UserUseCase {
                         ? Mono.error(new UserAlreadyExistsException(email))
                         : Mono.empty());
     }
+
     private Mono<Void> validateIdentityDocumentUnique(String identityDocument) {
         return userRepository.existsByIdentityDocument(identityDocument)
                 .flatMap(exists -> Boolean.TRUE.equals(exists)
@@ -35,8 +42,12 @@ public class UserUseCase {
                         : Mono.empty());
     }
 
-    public Mono<User>retrieveUserByIdentityDocument(String identityDocument) {
+    public Mono<User> retrieveUserByIdentityDocument(String identityDocument) {
         return userRepository.findByIdentityDocument(identityDocument)
                 .switchIfEmpty(Mono.error(new UserNotFoundException()));
+    }
+
+    public Mono<List<User>> retrieveUsersByIdentityDocuments(List<String> identityDocuments) {
+        return userRepository.findByIdentityDocuments(identityDocuments);
     }
 }

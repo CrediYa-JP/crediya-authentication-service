@@ -15,6 +15,7 @@ public class HttpStatusMapper {
             case BusinessErrorCodes.USER_ALREADY_EXISTS -> HttpStatus.CONFLICT;
             case BusinessErrorCodes.INVALID_EMAIL_FORMAT-> HttpStatus.BAD_REQUEST;
             case BusinessErrorCodes.USER_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case BusinessErrorCodes.INVALID_CREDENTIALS -> HttpStatus.UNAUTHORIZED;
             default -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }
