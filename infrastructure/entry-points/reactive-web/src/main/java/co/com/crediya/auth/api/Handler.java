@@ -4,6 +4,7 @@ import co.com.crediya.auth.api.dto.request.RegisterUserRequest;
 import co.com.crediya.auth.api.dto.response.LoginResponse;
 import co.com.crediya.auth.api.mapper.UserMapper;
 import co.com.crediya.auth.api.util.ValidationUtil;
+import co.com.crediya.auth.model.user.User;
 import co.com.crediya.auth.usecase.login.LoginUseCase;
 import co.com.crediya.auth.usecase.user.UserUseCase;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,11 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -35,6 +40,23 @@ public class Handler {
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(userResponse));
 
+    }
+
+    public Mono<ServerResponse> retrieveUsersByIdentityDocuments(ServerRequest serverRequest) {
+        return serverRequest.bodyToMono(String[].class)
+                .map(Arrays::asList)
+                .doOnNext(identityDocuments -> log.info("AUTH_BATCH_REQUEST identityDocuments={}", identityDocuments))
+                .flatMap(identityDocuments -> {
+                    // ✅ Debug explícito del tipo retornado
+                    Mono<List<User>> usersResult = userUseCase.retrieveUsersByIdentityDocuments(identityDocuments);
+                    return usersResult;
+                })
+                .flatMapMany(Flux::fromIterable)  // List<User> → Flux<User>
+                .map(UserMapper::toUserResponse)  // User → UserResponse
+                .collectList()                    // Flux<UserResponse> → Mono<List<UserResponse>>
+                .flatMap(users -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(users));
     }
 
     public Mono<ServerResponse>retrieveUserByIdentityDocument(ServerRequest serverRequest){

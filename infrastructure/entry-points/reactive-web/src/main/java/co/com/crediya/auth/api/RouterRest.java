@@ -29,6 +29,7 @@ public class RouterRest {
 
     private static final String API_V1_USERS = "/api/v1/users";
     private static final String API_V1_LOGIN = "/api/v1/login";
+    private static final String API_V1_USERS_BATCH = "/api/v1/users/retrieve-batch";
 
 
     @Bean
@@ -117,6 +118,10 @@ public class RouterRest {
                 .andRoute(POST(API_V1_LOGIN)
                                 .and(accept(MediaType.APPLICATION_JSON))
                                 .and(contentType(MediaType.APPLICATION_JSON)),
-                        handler::authenticateUser);
+                        handler::authenticateUser)
+                .andRoute(POST(API_V1_USERS_BATCH)
+                                .and(accept(MediaType.APPLICATION_JSON))
+                                .and(contentType(MediaType.APPLICATION_JSON)),
+                        handler::retrieveUsersByIdentityDocuments);
     }
 }

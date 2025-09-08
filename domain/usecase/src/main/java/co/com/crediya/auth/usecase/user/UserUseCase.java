@@ -9,6 +9,8 @@ import co.com.crediya.auth.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 
 @RequiredArgsConstructor
 public class UserUseCase {
@@ -43,5 +45,9 @@ public class UserUseCase {
     public Mono<User>retrieveUserByIdentityDocument(String identityDocument) {
         return userRepository.findByIdentityDocument(identityDocument)
                 .switchIfEmpty(Mono.error(new UserNotFoundException()));
+    }
+
+    public Mono<List<User>> retrieveUsersByIdentityDocuments(List<String> identityDocuments) {
+        return userRepository.findByIdentityDocuments(identityDocuments);
     }
 }

@@ -3,7 +3,10 @@ package co.com.crediya.auth.r2dbc;
 import co.com.crediya.auth.r2dbc.entity.UserEntity;
 import org.springframework.data.repository.query.ReactiveQueryByExampleExecutor;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 
 public interface UserReactiveRepository extends ReactiveCrudRepository<UserEntity, Long>, ReactiveQueryByExampleExecutor<UserEntity> {
@@ -15,5 +18,8 @@ public interface UserReactiveRepository extends ReactiveCrudRepository<UserEntit
     Mono<UserEntity> findByEmail(String email);
 
     Mono<UserEntity> findByIdentityDocument(String identityDocument);
+
+    Flux<UserEntity> findAllByIdentityDocumentIn(List<String> identityDocuments);
+
 
 }
