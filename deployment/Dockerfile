@@ -1,6 +1,5 @@
 # =================================
 # CREDIYA AUTHENTICATION SERVICE
-# Multi-stage Dockerfile - CORREGIDO
 # =================================
 
 # Stage 1: Build
