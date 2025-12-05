@@ -10,7 +10,7 @@ public class LoginUseCase {
 
     private final LoginGateway loginGateway;
 
-    public Mono<String> authenticateUser(String email, String password) {
+    public Mono<String> execute(String email, String password) {
         return loginGateway.authenticateAndGenerateToken(email, password);
     }
 }

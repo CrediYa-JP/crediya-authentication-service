@@ -1,4 +1,4 @@
-package co.com.crediya.auth.security;
+package co.com.crediya.auth.security.config.jwt;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

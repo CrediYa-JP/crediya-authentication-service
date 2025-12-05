@@ -19,7 +19,7 @@ public final class UserMapper {
                 .phone(request.getPhone())
                 .baseSalary(request.getBaseSalary())
                 .password(request.getPassword())
-                .roleId(RoleConstants.CLIENT_ROLE_ID)
+                .roleId(RoleConstants.CUSTOMER_ROLE_ID)
                 .build();
     }
 
